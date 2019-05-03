@@ -46,6 +46,7 @@ nova:
   'G@osfinger:Amazon*Linux*2018*':
     - cis.amazon-level-1-scored-v2-1-0
   'G@kernel:Linux':
+    - test
     - security.meltdown_spectre
     - security.ssh_passwordauthentication
     - cis.distribution-independent-linux-level-1-all-v1-1-0
