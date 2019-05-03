@@ -1,913 +1,588 @@
+####################
+# EBOSS OS Hhardening profile for Ubuntu OS Hardening as per the eBay standards explained at https://wiki.vip.corp.ebay.com/display/IS/Ubuntu+OS+Hardening
+# Updated on 04/03/19
+#####################
+
 grep:
   whitelist:
-    single_user_mode_check:
+    disable_dccp:
       data:
-        Ubuntu-16.04:
-        - /etc/shadow:
-            pattern: '^root:[*\!]:'
-            tag: CIS-1.4.3
-      description: Ensure authentication required for single user mode
-    mounts_home_partition_nodev:
+        '*':
+          - /etc/modprobe.d/usgcb-blacklist.conf:
+              pattern: 'install dccp /bin/true'
+              match_output: "install dccp /bin/true"
+              tag: EBOSS-Ubuntu-7.4.1
+      description: Ensure DCCP is disabled
+    disable_sctp:
       data:
-        Ubuntu-16.04:
-        - /proc/mounts:
-            match_output: nodev
-            pattern: /home
-            tag: CIS-1.1.13
-      description: Ensure nodev option set on /home partition
-    mounts_dev_shm_partition_nodev:
+        '*':
+          - /etc/modprobe.d/usgcb-blacklist.conf:
+              pattern: 'install sctp /bin/true'
+              match_output: "install sctp /bin/true"
+              tag: EBOSS-Ubuntu-7.4.2
+      description: Ensure SCTP is disabled
+    disable_rds:
       data:
-        Ubuntu-16.04:
-        - /proc/mounts:
-            match_output: nodev
-            pattern: /dev/shm
-            tag: CIS-1.1.14
-      description: Ensure nodev option set on /dev/shm partition
-    mounts_dev_shm_partition_noexec:
+        '*':
+          - /etc/modprobe.d/usgcb-blacklist.conf:
+              pattern: 'install rds /bin/true'
+              match_output: "install rds /bin/true"
+              tag: EBOSS-Ubuntu-7.4.3
+      description: Ensure RDS is disabled
+    disable_tipc:
       data:
-        Ubuntu-16.04:
-        - /proc/mounts:
-            match_output: noexec
-            pattern: /dev/shm
-            tag: CIS-1.1.16
-      description: Ensure noexec option set on /dev/shm partition
-    mounts_dev_shm_partition_nosuid:
+        '*':
+          - /etc/modprobe.d/usgcb-blacklist.conf:
+              pattern: 'install tipc /bin/true'
+              match_output: "install tipc /bin/true"
+              tag: EBOSS-Ubuntu-7.4.4
+      description: Ensure TIPC is disabled
+    disable_wireless_interfaces:
       data:
-        Ubuntu-16.04:
-        - /proc/mounts:
-            match_output: nosuid
-            pattern: /dev/shm
-            tag: CIS-1.1.15
-      description: Ensure nosuid option set on /dev/shm partition
+        '*':
+          - /etc/network/interfaces:
+              pattern: 'wlan0'
+              match_output: "iface wlan0"
+              tag: EBOSS-Ubuntu-7.5
+      description: Ensure Wireless Interfaces disabled
+    seperate_tmp_partition:
+      data:
+        '*':
+        - /etc/fstab:
+            match_output: /tmp
+            pattern: /tmp
+            tag: EBOSS-Ubuntu-2.1.1
+      description: Ensure /tmp as seperate partition
     mounts_tmp_partition_nodev:
       data:
-        Ubuntu-16.04:
-        - /proc/mounts:
+        '*':
+        - /etc/fstab:
             match_output: nodev
             pattern: /tmp
-            tag: CIS-1.1.3
+            tag: EBOSS-Ubuntu-2.1.2
       description: Ensure nodev option set on /tmp partition
     mounts_tmp_partition_nosuid:
       data:
-        Ubuntu-16.04:
-        - /proc/mounts:
+        '*':
+        - /etc/fstab:
             match_output: nosuid
             pattern: /tmp
-            tag: CIS-1.1.4
+            tag: EBOSS-Ubuntu-2.1.3
       description: Ensure nosuid option set on /tmp partition
-    mount_var_tmp_partition_nodev:
+    mounts_tmp_partition_noexec:
       data:
-        Ubuntu-16.04:
-        - /proc/mounts:
-            match_output: nodev
-            pattern: /var/tmp
-            tag: CIS-1.1.7
-      description: Ensure nodev option set on /var/tmp partition
-    mount_var_tmp_partition_nosuid:
-      data:
-        Ubuntu-16.04:
-        - /proc/mounts:
-            match_output: nosuid
-            pattern: /var/tmp
-            tag: CIS-1.1.8
-      description: Ensure nosuid option set on /var/tmp partition
-    mount_var_tmp_partition_noexec:
-      data:
-        Ubuntu-16.04:
-        - /proc/mounts:
+        '*':
+        - /etc/fstab:
             match_output: noexec
-            pattern: /var/tmp
-            tag: CIS-1.1.9
-      description: Ensure noexec option set on /var/tmp partition
-    aide_filesystem_scans:
+            pattern: /tmp
+            tag: EBOSS-Ubuntu-2.1.4
+      description: Ensure noexec option set on /tmp partition
+    separate_var_partition:
       data:
-        Ubuntu-16.04:
-        - /etc/cron.d:
-            pattern: aide
-            grep_args:
-              - '-r'
-            tag: CIS-1.3.2
-      description: Ensure filesystem integrity is regularly checked
-    boot_loader_passwd:
+        '*':
+        - /etc/fstab:
+            match_output: /var
+            pattern: /var
+            tag: EBOSS-Ubuntu-2.2.1
+      description: setup /var as separate partition
+    separate_var_log_audit__partition:
       data:
-        Ubuntu-16.04:
-        - /boot/grub/grub.cfg:
-            pattern: password
-            tag: CIS-1.4.2
-      description: Ensure bootloader password is set
-    core_hard_limit:
+        '*':
+        - /etc/fstab:
+            match_output: /var/log/audit
+            pattern: /var/log/audit
+            tag: EBOSS-Ubuntu-2.2.2
+      description: Ensure /tmp/log/audit as seperate partition     
+    separate_var_partition:
       data:
-        Ubuntu-16.04:
-        - /etc/security/limits.conf:
-            match_output: '0'
-            pattern: hard core
-            tag: CIS-1.5.1
-      description: Ensure core dumps are restricted
-    ntp_restrict_default:
+        '*':
+        - /etc/fstab:
+            match_output: /var
+            pattern: /var
+            tag: EBOSS-Ubuntu-2.3
+      description: Ensure /var mounted as seperate partition
+    separate_var_log_partition:
       data:
-        Ubuntu-16.04:
-        - /etc/ntp.conf:
-            pattern: '^restrict'
-            match_output: default
-            tag: CIS-2.2.1.2
-        - /etc/ntp.conf:
-            pattern: restrict -6 default
-            tag: CIS-2.2.1.2
-        - /etc/ntp.conf:
-            pattern: '^server'
-            tag: CIS-2.2.1.2
-        - /etc/init.d/ntp:
-            pattern: RUNASUSER=
-            tag: CIS-2.2.1.2
-      description: Ensure NTP is configured
-    configure_chrony:
+        '*':
+        - /etc/fstab:
+            match_output: /var/log
+            pattern: /var/log
+            tag: EBOSS-Ubuntu-2.3.1
+      description: Ensure /var/log as seperate partition
+    separate_var_log_audit__partition:
       data:
-        Ubuntu-16.04:
-        - /etc/chrony.conf:
-            tag: CIS-2.2.1.3
-            pattern: '^server'
-        - /etc/sysconfig/chronyd:
-            tag: CIS-2.2.1.3
-            pattern: 'chrony'
-      description: Ensure chrony is configured
-    local_mta:
+        '*':
+        - /etc/fstab:
+            match_output: /var/log/audit
+            pattern: /var/log/audit
+            tag: EBOSS-Ubuntu-2.3.2
+      description: Ensure /tmp/log/audit as seperate partition
+    separate_home__partition:
       data:
-        Ubuntu-16.04:
-          - /etc/postfix/main.cf:
-              pattern: '^inet_interfaces'
-              match_output: localhost
-              tag: CIS-2.2.15
-      description: Ensure mail transfer agent is configured for local-only mode
-    rsync:
+        '*':
+        - /etc/fstab:
+            match_output: /home
+            pattern: /home
+            tag: EBOSS-Ubuntu-2.4.1
+      description: Ensure /home mounted as seperate partition
+    mounts_home_partition_nodev:
       data:
-        Ubuntu-16.04:
-        - /etc/default/rsync:
-            pattern: ^RSYNC_ENABLE
-            match_output: 'false'
-            tag: CIS-2.2.16
-      description: Ensure rsync service is not enabled
-    hosts_allow:
-      data:
-        Ubuntu-16.04:
-        - /etc/hosts.allow:
-            pattern: ALL
-            tag: CIS-3.4.2
-      description: Ensure /etc/hosts.allow is configured
-    hosts_deny:
-      data:
-        Ubuntu-16.04:
-        - /etc/hosts.deny:
-            pattern:  ALL
-            tag: CIS-3.4.3
-      description: Ensure /etc/hosts.deny is configured
-    firewall_default_deny:
-      data:
-        Ubuntu-16.04:
-        - /etc/iptables/rules.v4:
-            pattern: :INPUT
-            match_output: DROP
-            tag: CIS-3.6.2
-        - /etc/iptables/rules.v4:
-            pattern: :FORWARD
-            match_pattern: DROP
-            tag: CIS-3.6.2
-        - /etc/iptables/rules.v4:
-            pattern: :OUTPUT
-            match_output: DROP
-            tag: CIS-3.6.2
-      description: Ensure default deny firewall policy
-    firewall_accept_lo:
-      data:
-        Ubuntu-16.04:
-        - /etc/iptables/rules.v4:
-            pattern: '"\-A INPUT \-i lo \-j"'
-            match_output: ACCEPT
-            tag: CIS-3.6.3
-        - /etc/iptables/rules.v4:
-            pattern: '"\-A OUTPUT \-o lo \-j"'
-            match_output: ACCEPT
-            tag: CIS-3.6.3
-        - /etc/iptables/rules.v4:
-            pattern: '"\-A INPUT \-s 127.0.0.0/8 \-j"'
-            match_output: DROP
-            tag: CIS-3.6.3
-      description: Ensure loopback traffic is configured
-#3.6.5 is not implemented as need code changes
-    rsyslog_file_perms:
-      data:
-        Ubuntu-16.04:
-        - /etc/rsyslog.conf:
-            pattern: '^\$FileCreateMode'
-            match_output: '0640'
-            tag: CIS-4.2.1.3
-            allow_more_strict: true
-      description: Ensure rsyslog default file permissions configured
-    rsyslog_remote_logging:
-      data:
-        Ubuntu-16.04:
-        - /etc/rsyslog.conf:
-            pattern: ^*.*[^I][^I]*@
-            tag: CIS-4.2.1.4
-      description: Ensure rsyslog is configured to send logs to a remote log host
-    syslog-ng_file_perms:
-      data:
-        Ubuntu-16.04:
-        - /etc/syslog-ng/syslog-ng.conf:
-            pattern: ^options
-            match_output: 'perm(0640)'
-            tag: CIS-4.2.2.3
-      description: Ensure syslog-ng default file permissions configured
-    lockout_account:
-      data:
-        Ubuntu-16.04:
-        - /etc/pam.d/system-auth:
-            pattern: '"^auth\s+required\s+pam_faillock\.so.*"'
-            match_output: deny=5
-            grep_args:
-              - '-E'
-            tag: CIS-5.3.2
-        - /etc/pam.d/password-auth:
-            pattern: '"^auth\s+required\s+pam_faillock\.so.*"'
-            match_output: deny=5
-            grep_args:
-              - '-E'
-            tag: CIS-5.3.2
-      description: Ensure lockout for failed password attempts is configured
-    pam_password_reuse:
-      data:
-        Ubuntu-16.04:
-        - /etc/pam.d/common-password:
-            pattern: remember
-            match_output: 'remember=5'
-            tag: CIS-5.3.3
-      description: Ensure password reuse is limited
-    ssh_version_2:
-      data:
-        Ubuntu-16.04:
-        - /etc/ssh/sshd_config:
-            pattern: ^Protocol
-            match_output: Protocol\s+2
-            match_output_regex: True
-            tag: CIS-5.2.2
-      description: Ensure SSH Protocol is set to 2
-    ssh_log_level:
-      data:
-        Ubuntu-16.04:
-        - /etc/ssh/sshd_config:
-            pattern: ^LogLevel
-            match_output: LogLevel\s+INFO
-            match_output_regex: True
-            tag: CIS-5.2.3
-      description: Ensure SSH LogLevel is set to INFO
-    ssh_disable_xforward:
-      data:
-        Ubuntu-16.04:
-        - /etc/ssh/sshd_config:
-            pattern: ^X11Forwarding
-            match_output: X11Forwarding\s+no
-            match_output_regex: True
-            tag: CIS-5.2.4
-      description: Ensure SSH X11 forwarding is disabled
-    ssh_auth_retries:
-      data:
-        Ubuntu-16.04:
-        - /etc/ssh/sshd_config:
-            pattern: ^MaxAuthTries
-            match_output_regex: True
-            match_output: "^MaxAuthTries +[1-4]$"
-            tag: CIS-5.2.5
-      description: Ensure SSH MaxAuthTries is set to 4 or less
-    ssh_ignore_rhosts:
-      data:
-        Ubuntu-16.04:
-        - /etc/ssh/sshd_config:
-            pattern: ^IgnoreRhosts
-            match_output: IgnoreRhosts\s+yes
-            match_output_regex: True
-            tag: CIS-5.2.6
-      description: Ensure SSH IgnoreRhosts is enabled
-    ssh_hostbased_auth:
-      data:
-        Ubuntu-16.04:
-        - /etc/ssh/sshd_config:
-            pattern: ^HostbasedAuthentication
-            match_output: HostbasedAuthentication\s+no
-            match_output_regex: True
-            tag: CIS-5.2.7
-      description: Ensure SSH HostbasedAuthentication is disabled
-    ssh_permit_root:
-      data:
-        Ubuntu-16.04:
-        - /etc/ssh/sshd_config:
-            pattern: ^PermitRootLogin
-            match_output: PermitRootLogin\s+no
-            match_output_regex: True
-            tag: CIS-5.2.8
-      description: Ensure SSH root login is disabled
-    ssh_permit_empty_pw:
-      data:
-        Ubuntu-16.04:
-        - /etc/ssh/sshd_config:
-            pattern: ^PermitEmptyPasswords
-            match_output: PermitEmptyPasswords\s+no
-            match_output_regex: True
-            tag: CIS-5.2.9
-      description: Ensure SSH PermitEmptyPasswords is disabled
-    ssh_permit_user_env:
-      data:
-        Ubuntu-16.04:
-        - /etc/ssh/sshd_config:
-            pattern: ^PermitUserEnvironment
-            match_output: PermitUserEnvironment\s+no
-            match_output_regex: True
-            tag: CIS-5.2.10
-      description: Ensure SSH PermitUserEnvironment is disabled
-    sshd_idle_timeout:
-      data:
-        Ubuntu-16.04:
-        - /etc/ssh/sshd_config:
-            pattern: ^ClientAliveInterval
-            match_output: ^ClientAliveInterval +([1-2]{0,1}\d{1,2}|300)$
-            match_output_regex: True
-            tag: CIS-5.2.12
-        - /etc/ssh/sshd_config:
-            pattern: ClientAliveCountMax
-            match_output: "^ClientAliveCountMax +[0-3]$"
-            match_output_regex: True
-            tag: CIS-5.2.12
-      description: Ensure SSH Idle Timeout Interval is configured
-    sshd_gracetime:
-      data:
-        Ubuntu-16.04:
-        - /etc/ssh/sshd_config:
-            pattern: ^LoginGraceTime
-            match_output: ^LoginGraceTime ([0-5]{0,1}\d|60|1m)$
-            match_output_regex: True
-            tag: CIS-5.2.13
-      description: Ensure SSH LoginGraceTime is set to one minute or less
-    ssh_limit_access:
-      data:
-        Ubuntu-16.04:
-        - /etc/ssh/sshd_config:
-            pattern: '^AllowUsers|^AllowGroups|^DenyUsers|^DenyGroups'
-            grep_args:
-              - '-E'
-            tag: CIS-5.2.14
-      description:  Ensure SSH access is limited
-    sshd_banner:
-      data:
-        Ubuntu-16.04:
-        - /etc/ssh/sshd_config:
-            match_output: "/etc/issue.net"
-            pattern: ^Banner
-            tag: CIS-5.2.15
-      description: Ensure SSH warning banner is configured
-    pam_pwquality_try_first_pass:
-      data:
-        Ubuntu-16.04:
-        - /etc/pam.d/common-password:
-            match_output: try_first_pass
-            pattern: pam_pwquality.so
-            tag: CIS-5.3.1
-        - /etc/pam.d/common-password:
-            match_output: retry=3
-            pattern: pam_pwquality.so
-            tag: CIS-5.3.1
-        - /etc/security/pwquality.conf:
-            pattern: minlen
-            match_output: '14'
-            tag: CIS-5.3.1
-        - /etc/security/pwquality.conf:
-            pattern: dcredit
-            match_output: '-1'
-            tag: CIS-5.3.1
-        - /etc/security/pwquality.conf:
-            pattern: ucredit
-            match_output: '-1'
-            tag: CIS-5.3.1
-        - /etc/security/pwquality.conf:
-            pattern: ocredit
-            match_output: '-1'
-            tag: CIS-5.3.1
-        - /etc/security/pwquality.conf:
-            pattern: lcredit
-            match_output: '-1'
-            tag: CIS-5.3.1
-      description: Ensure password creation requirements are configured
-    password_hash:
-      data:
-        Ubuntu-16.04:
-        - /etc/pam.d/common-password:
-            pattern: '"^password\s.*\w+.*\s+pam_unix.so\s+\w+\s"'
-            match_output: sha512
-            grep_args:
-              - '-E'
-            tag: CIS-5.3.4
-      description: Ensure password hashing algorithm is SHA-512
-    limit_su_access:
-      data:
-        Ubuntu-16.04:
-        - /etc/pam.d/su:
-            pattern: pam_wheel.so
-            match_output: use_uid
-            tag: CIS-5.6
-        - /etc/group:
-            pattern: wheel
-            tag: CIS-5.6
-      description: Ensure access to the su command is restricted
-    password_max_days:
-      data:
-        Ubuntu-16.04:
-        - /etc/login.defs:
-            pattern: PASS_MAX_DAYS
-            match_output: '90'
-            tag: CIS-5.4.1.1
-      description: Ensure password expiration is 90 days or less
-    password_min_days:
-      data:
-        Ubuntu-16.04:
-        - /etc/login.defs:
-            pattern: PASS_MIN_DAYS
-            match_output: '7'
-            tag: CIS-5.4.1.2
-      description: Ensure minimum days between password changes is 7 or more
-    password_warn_days:
-      data:
-        Ubuntu-16.04:
-        - /etc/login.defs:
-            pattern: PASS_WARN_AGE
-            match_output: '7'
-            tag: CIS-5.4.1.3
-      description: Ensure password expiration warning days is 7 or more
-    default_umask:
-      data:
-        Ubuntu-16.04:
-        - /etc/bash.bashrc:
-            pattern: umask
-            match_pattern: '0[2367]7'
-            grep_args:
-              - '-E'
-            tag: CIS-5.4.4
-        - /etc/profile.d/cis.sh:
-            pattern: umask
-            match_pattern: '0[2367]7'
-            grep_args:
-              - '-E'
-            tag: CIS-5.4.4
-      description: Ensure default user umask is 027 or more restrictive
-    passwd_inactive:
-      data:
-        Ubuntu-16.04:
-        - /etc/default/useradd:
-            pattern: INACTIVE=30
-            tag: CIS-5.4.1.4
-      description: Ensure inactive password lock is 30 days or less
-  blacklist:
+        '*':
+        - /etc/fstab:
+            match_output: nodev
+            pattern: /home
+            tag: EBOSS-Ubuntu-2.4.2
+      description: Ensure nodev option set on /home partition
     disable_mount_cramfs:
       data:
-        Ubuntu-16.04:
-        - /proc/modules:
-            pattern: "^cramfs "
-            tag: CIS-1.1.1.1
+        '*':
+        - /etc/modprobe.d:
+            match_output: /bin/true
+            pattern: cramfs
+            grep_args:
+              - '-r'
+            tag: EBOSS-Ubuntu-2.8.1
       description: Ensure mounting of cramfs filesystems is disabled
+    mounts_run_shm_partition_nodev:
+      data:
+        '*':
+        - /proc/mounts:
+            match_output: nodev
+            pattern: /run/shm
+            tag: EBOSS-Ubuntu-2.6.1
+      description: Ensure nodev option set on /run/shm partition
+    mounts_run_shm_partition_noexec:
+      data:
+        '*':
+        - /proc/mounts:
+            match_output: noexec
+            pattern: /run/shm
+            tag: EBOSS-Ubuntu-2.6.3
+      description: Ensure noexec option set on /run/shm partition
+    mounts_run_shm_partition_nosuid:
+      data:
+        '*':
+        - /proc/mounts:
+            match_output: nosuid
+            pattern: /run/shm
+            tag: EBOSS-Ubuntu-2.6.2
+      description: Ensure nosuid option set on /run/shm partition
     disable_mount_freevxfs:
       data:
-        Ubuntu-16.04:
-        - /proc/modules:
-            pattern: "^freevxfs "
-            tag: CIS-1.1.1.2
+        '*':
+        - /etc/modprobe.d:
+            match_output: /bin/true
+            pattern: freevxfs
+            grep_args:
+              - '-r'
+            tag: EBOSS-Ubuntu-2.8.2
       description: Ensure mounting of freevxfs filesystems is disabled
     disable_mount_jffs2:
       data:
-        Ubuntu-16.04:
-        - /proc/modules:
-            pattern: "^jffs2 "
-            tag: CIS-1.1.1.3
+        '*':
+        - /etc/modprobe.d:
+            match_output: /bin/true
+            pattern: jffs2
+            grep_args:
+              - '-r'
+            tag: EBOSS-Ubuntu-2.8.3
       description: Ensure mounting of jffs2 filesystems is disabled
     disable_mount_hfs:
       data:
-        Ubuntu-16.04:
-        - /proc/modules:
-            pattern: "^hfs "
-            tag: CIS-1.1.1.4
+        '*':
+        - /etc/modprobe.d:
+            match_output: /bin/true
+            pattern: hfs
+            grep_args:
+              - '-r'
+            tag: EBOSS-Ubuntu-2.8.4
       description: Ensure mounting of hfs filesystems is disabled
     disable_mount_hfsplus:
       data:
-        Ubuntu-16.04:
-        - /proc/modules:
-            pattern: "^hfsplus "
-            tag: CIS-1.1.1.5
+        '*':
+        - /etc/modprobe.d:
+            match_output: /bin/true
+            pattern: hfsplus
+            grep_args:
+              - '-r'
+            tag: EBOSS-Ubuntu-2.8.5
       description: Ensure mounting of hfsplus filesystems is disabled
     disable_mount_squashfs:
       data:
-        Ubuntu-16.04:
-        - /proc/modules:
-            pattern: "^squashfs "
-            tag: CIS-1.1.1.6
+        '*':
+        - /etc/modprobe.d:
+            match_output: /bin/true
+            pattern: squashfs
+            grep_args:
+              - '-r'
+            tag: EBOSS-Ubuntu-2.8.6
       description: Ensure mounting of squashfs filesystems is disabled
     disable_mount_udf:
       data:
-        Ubuntu-16.04:
-        - /proc/modules:
-            pattern: "^udf "
-            tag: CIS-1.1.1.7
+        '*':
+        - /etc/modprobe.d:
+            match_output: /bin/true
+            pattern: udf
+            grep_args:
+              - '-r'
+            tag: EBOSS-Ubuntu-2.8.7
       description: Ensure mounting of udf filesystems is disabled
-    disable_mount_fat:
+    core_hard_limit:
       data:
-        Ubuntu-16.04:
-        - /proc/modules:
-            pattern: "^vfat "
-            tag: CIS-1.1.1.8
-      description: Ensure mounting of FAT filesystems is disabled
-    chargen_disabled:
+        '*':
+        - /etc/security/limits.conf:
+            match_output: '0'
+            pattern: hard core
+            tag: EBOSS-Ubuntu-4.1.1
+      description: Ensure core dumps are restricted (add "* hard core 0" to the /etc/security/limits.conf file)
+    ntp_restrict_default:
       data:
-        Ubuntu-16.04:
-        - /etc/xinetd.d/chargen-dgram:
-            pattern: disable
-            match_output: 'no'
-            tag: CIS-2.1.1
-            match_on_file_missing: False
-        - /etc/xinetd.d/chargen-stream:
-            pattern: disable
-            match_output: 'no'
-            tag: CIS-2.1.1
-            match_on_file_missing: False
-      description: Ensure chargen services are not enabled
-    daytime_disabled:
+        '*':
+        - /etc/ntp.conf:
+            pattern: '^restrict'
+            match_output: default
+            tag: EBOSS-Ubuntu-6.2
+        - /etc/ntp.conf:
+            pattern: restrict -4 default
+            tag: EBOSS-Ubuntu-6.2
+        - /etc/ntp.conf:
+            pattern: restrict -6 default
+            tag: EBOSS-Ubuntu-6.2
+        - /etc/ntp.conf:
+            pattern: '^server'
+            tag: EBOSS-Ubuntu-6.2
+        - /etc/init.d/ntp:
+            pattern: RUNASUSER=
+            tag: EBOSS-Ubuntu-6.2
+      description: Ensure NTP is configured
+    local_mta:
       data:
-        Ubuntu-16.04:
-        - /etc/xinetd.d/daytime-dgram:
-            pattern: disable
-            match_output: 'no'
-            tag: CIS-2.1.2
-            match_on_file_missing: False
-        - /etc/xinetd.d/daytime-stream:
-            pattern: disable
-            match_output: 'no'
-            tag: CIS-2.1.2
-            match_on_file_missing: False
-      description: Ensure daytime services are not enabled
-    discard_disabled:
+        '*':
+          - /etc/postfix/main.cf:
+              pattern: '^inet_interfaces = '
+              match_output: localhost
+              tag: EBOSS-Ubuntu-6.3
+      description: Ensure mail transfer agent is configured for local-only mode
+  blacklist:
+    single_user_auth:
       data:
-        Ubuntu-16.04:
-        - /etc/xinetd.d/discard-dgram:
-            pattern: disable
-            match_output: 'no'
-            tag: CIS-2.1.3
-            match_on_file_missing: False
-        - /etc/xinetd.d/discard-stream:
-            pattern: disable
-            match_output: 'no'
-            tag: CIS-2.1.3
-            match_on_file_missing: False
-      description: Ensure discard services are not enabled
-    echo_disabled:
-      data:
-        Ubuntu-16.04:
-        - /etc/xinetd.d/echo-dgram:
-            pattern: disable
-            match_output: 'no'
-            tag: CIS-2.1.4
-            match_on_file_missing: False
-        - /etc/xinetd.d/echo-stream:
-            pattern: disable
-            match_output: 'no'
-            tag: CIS-2.1.4
-            match_on_file_missing: False
-      description: Ensure echo services are not enabled
-    time_disabled:
-      data:
-        Ubuntu-16.04:
-        - /etc/xinetd.d/time-dgram:
-            pattern: disable
-            match_output: 'no'
-            tag: CIS-2.1.5
-            match_on_file_missing: False
-        - /etc/xinetd.d/time-stream:
-            pattern: disable
-            match_output: 'no'
-            tag: CIS-2.1.5
-            match_on_file_missing: False
-      description: Ensure time services are not enabled
-    banner_os_info_motd:
-      data:
-        Ubuntu-16.04:
-        - /etc/motd:
-            pattern: '\v'
-            tag: CIS-1.7.1.1
-        - /etc/motd:
-            pattern: '\r'
-            tag: CIS-1.7.1.1
-        - /etc/motd:
-            pattern: '\m'
-            tag: CIS-1.7.1.1
-        - /etc/motd:
-            pattern: '\s'
-            tag: CIS-1.7.1.1
-      description: Ensure message of the day is configured properly
-    legacy_entries_passwd:
-      data:
-        Ubuntu-16.04:
-        - /etc/passwd:
-            pattern: '^+'
-            tag: CIS-6.2.2
-      description: Ensure No Legacy "+" Entries Exist in /etc/passwd File
-    legacy_entries_shadow:
-      data:
-        Ubuntu-16.04:
-        - /etc/shadow:
-            pattern: '^+'
-            tag: CIS-6.2.3
-      description: Ensure No Legacy "+" Entries Exist in /etc/shadow File
-    legacy_entries_group:
-      data:
-        Ubuntu-16.04:
-        - /etc/group:
-            pattern: '^+'
-            tag: CIS-6.2.4
-      description: Ensure No Legacy "+" Entries Exist in /etc/group File
+        '*':
+          - '/etc/shadow':
+              tag: EBOSS-Ubuntu-3.2
+              pattern: "^root:[*\\!]:"
+      description: Require Authentication for Single-User Mode by setting password for root
     talkd:
       data:
-        Ubuntu-16.04:
+        '*':
         - /etc/xinetd*:
             pattern: '^talk'
             grep_args:
               - '-r'
-            tag: CIS-2.1.7
-        - /etc/xinetd*:
-            pattern: '^ntalk'
-            grep_args:
-              - '-r'
-            tag: CIS-2.1.7
+            tag: EBOSS-Ubuntu-5.1.3
       description: Ensure talk server is not enabled
     telnet:
       data:
-        Ubuntu-16.04:
+        '*':
         - /etc/xinetd*:
             pattern: '^telnet'
             greps_args:
               - '-r'
-            tag: CIS-2.1.8
+            tag: EBOSS-Ubuntu-5.1.4
       description: Ensure Telnet Server is not Enabled
     tftp:
       data:
-        Ubuntu-16.04:
+        '*':
         - /etc/xinetd*:
             pattern: '^tftp'
             grep_args:
               - '-r'
-            tag: CIS-2.1.9
+            tag: EBOSS-Ubuntu-5.1.5
       description: Ensure tftp server is not enabled
-
-service:
-  blacklist:
-    autofs:
+    chargen:
       data:
-        Ubuntu-16.04:
-        - autofs: CIS-1.1.21
-      description: Disable Automounting
-    avahi_daemon:
+        '*':
+        - /etc/xinetd.d/chargen:
+            match_output: '^\s*disable\s*=\s*no'
+            pattern: chargen-stream
+            match_output_regex: True
+            grep_args:
+              - '-B'
+              - '3'
+            tag: EBOSS-Ubuntu-5.1.7
+        - /etc/xinetd.d/chargen:
+            match_output: '^\s*disable\s*=\s*no'
+            pattern: chargen-dgram
+            match_output_regex: True
+            grep_args:
+              - '-B'
+              - '3'
+            tag: EBOSS-Ubuntu-5.1.7
+      description: Ensure Chargen Services are not Enabled
+    daytime:
       data:
-        Ubuntu-16.04:
-          - avahi-daemon: CIS-2.2.3
-      description: Ensure Avahi Server is not enabled
-    cups:
+        '*':
+        - /etc/xinetd.d/daytime:
+            match_output: '^\s*disable\s*=\s*no'
+            pattern: daytime-stream
+            match_output_regex: True
+            grep_args:
+              - '-B'
+              - '3'
+            tag: EBOSS-Ubuntu-5.1.8
+        - /etc/xinetd.d/daytime:
+            match_output: '^\s*disable\s*=\s*no'
+            pattern: daytime-dgram
+            match_output_regex: True
+            grep_args:
+              - '-B'
+              - '3'
+            tag: EBOSS-Ubuntu-5.1.8
+      description: Ensure daytime services are not enabled
+    echo:
       data:
-        Ubuntu-16.04:
-          - cups: CIS-2.2.4
-      description: Ensure CUPS is not enabled
-    dhcp-server:
+        '*':
+        - /etc/xinetd.d/echo:
+            match_output: '^\s*disable\s*=\s*no'
+            pattern: echo-stream
+            match_output_regex: True
+            grep_args:
+              - '-B'
+              - '3'
+            tag: EBOSS-Ubuntu-5.1.9
+        - /etc/xinetd.d/echo:
+            match_output: '^\s*disable\s*=\s*no'
+            pattern: echo-dgram
+            match_output_regex: True
+            grep_args:
+              - '-B'
+              - '3'
+            tag: EBOSS-Ubuntu-5.1.9
+      description: Ensure echo services are not enabled
+    discard:
       data:
-        Ubuntu-16.04:
-          - isc-dhcp-server: CIS-2.2.5
-          - isc-dhcp-server6: CIS-2.2.5
-      description: Ensure DHCP Server is not enabled
-    slapd:
+        '*':
+        - /etc/xinetd.d/discard:
+            match_output: '^\s*disable\s*=\s*no'
+            pattern: discard-stream
+            match_output_regex: True
+            grep_args:
+              - '-B'
+              - '3'
+            tag: EBOSS-Ubuntu-5.1.10
+        - /etc/xinetd.d/discard:
+            match_output: '^\s*disable\s*=\s*no'
+            pattern: discard-dgram
+            match_output_regex: True
+            grep_args:
+              - '-B'
+              - '3'
+            tag: EBOSS-Ubuntu-5.1.10
+      description: Ensure discard services are not enabled
+    time:
       data:
-        Ubuntu-16.04:
-        - slapd: CIS-2.2.6
-      description: Ensure LDAP server is not enabled
-    nfs-service:
-      data:
-        Ubuntu-16.04:
-        - nfs-kernel-server: CIS-2.2.7
-      description: Ensure NFS and RPC are not enabled
-    rpc-bind-service:
-      data:
-        Ubuntu-16.04:
-        - rpcbind: CIS-2.2.7
-      description: Ensure NFS and RPC are not enabled
-    bind9:
-      data:
-        Ubuntu-16.04:
-        - bind9: CIS-2.2.8
-      description: Ensure DNS Server is not enabled
-    http-server-service:
-      data:
-        Ubuntu-16.04:
-        - apache2: CIS-2.2.10
-      description: Ensure HTTP server is not enabled
-    imap-pop3-server-service:
-      data:
-        Ubuntu-16.04:
-        - dovecot: CIS-2.2.11
-      description: Ensure IMAP and POP3 server is not enabled
-  whitelist:
-    syslog-ng_running:
-      data:
-        Ubuntu-16.04:
-        - syslog-ng: CIS-4.2.2.1
-      description: Ensure syslog-ng service is enabled
-    cron:
-      data:
-        Ubuntu-16.04:
-          - cron: CIS-5.1.1
-      description: Enable cron Daemon
+        '*':
+        - /etc/xinetd.d/time:
+            match_output: '^\s*disable\s*=\s*no'
+            pattern: time-stream
+            match_output_regex: True
+            grep_args:
+              - '-B'
+              - '3'
+            tag: EBOSS-Ubuntu-5.1.11
+        - /etc/xinetd.d/time:
+            match_output: '^\s*disable\s*=\s*no'
+            pattern: time-dgram
+            match_output_regex: True
+            grep_args:
+              - '-B'
+              - '3'
+            tag: EBOSS-Ubuntu-5.1.11
+      description: Ensure time Services are not Enabled
 
 sysctl:
   disable_suid_dumpable:
     data:
-      Ubuntu-16.04:
+      '*':
       - fs.suid_dumpable:
           match_output: '0'
-          tag: CIS-1.5.1
-    description: Restrict Core Dumps
+          tag: EBOSS-Ubuntu-4.1.2
+    description: Restrict Core Dumps (Add fs.suid_dumpable = 0 to the /etc/sysctl.conf file)
   randomize_va_space:
     data:
-      Ubuntu-16.04:
+      '*':
       - kernel.randomize_va_space:
           match_output: '2'
-          tag: CIS-1.5.3
-    description: Ensure address space layout randomization (ASLR) is enabled
+          tag: EBOSS-Ubuntu-4.3
+    description: Ensure address space layout randomization (ASLR) is enabled ("kernel.randomize_va_space = 2" to the /etc/sysctl.conf file)
   disable_ip4_ip_forward:
     data:
-      Ubuntu-16.04:
+      '*':
       - net.ipv4.ip_forward:
           match_output: '0'
-          tag: CIS-3.1.1
+          tag: EBOSS-Ubuntu-7.1.1
     description: Ensure IP forwarding is disabled
   disable_packet_redirect:
     data:
-      Ubuntu-16.04:
+      '*':
       - net.ipv4.conf.all.send_redirects:
           match_output: '0'
-          tag: CIS-3.1.2
+          tag: EBOSS-Ubuntu-7.1.2
     description: Ensure packet redirect sending is disabled
   disable_source_routed_packets:
     data:
-      Ubuntu-16.04:
+      '*':
       - net.ipv4.conf.all.accept_source_route:
           match_output: '0'
-          tag: CIS-3.2.1
+          tag: EBOSS-Ubuntu-7.1.3
     description: Ensure source routed packets are not accepted
   disable_icmp_redirect:
     data:
-      Ubuntu-16.04:
+      '*':
       - net.ipv4.conf.all.accept_redirects:
           match_output: '0'
-          tag: CIS-3.2.2
+          tag: EBOSS-Ubuntu-7.1.4
     description: Ensure ICMP redirects are not accepted
   disable_secure_icmp_redirect:
     data:
-      Ubuntu-16.04:
+      '*':
       - net.ipv4.conf.all.secure_redirects:
           match_output: '0'
-          tag: CIS-3.2.3
+          tag: EBOSS-Ubuntu-7.1.5
     description: Ensure secure ICMP redirects are not accepted
   log_martians:
     data:
-      Ubuntu-16.04:
+      '*':
       - net.ipv4.conf.all.log_martians:
           match_output: '1'
-          tag: CIS-3.2.4
+          tag: EBOSS-Ubuntu-7.1.6
     description: Ensure suspicious packets are logged
   ignore_broadcast:
     data:
-      Ubuntu-16.04:
+      '*':
       - net.ipv4.icmp_echo_ignore_broadcasts:
           match_output: '1'
-          tag: CIS-3.2.5
+          tag: EBOSS-Ubuntu-7.1.7
     description: Ensure broadcast ICMP requests are ignored
   bogus_errors:
     data:
-      Ubuntu-16.04:
+      '*':
       - net.ipv4.icmp_ignore_bogus_error_responses:
           match_output: '1'
-          tag: CIS-3.2.6
+          tag: EBOSS-Ubuntu-7.1.8
     description: Ensure bogus ICMP responses are ignored
   rp_filter:
     data:
-      Ubuntu-16.04:
+      '*':
       - net.ipv4.conf.all.rp_filter:
           match_output: '1'
-          tag: CIS-3.2.7
+          tag: EBOSS-Ubuntu-7.1.9
     description: Ensure Reverse Path Filtering is enabled
   tcp_syncookies:
     data:
-      Ubuntu-16.04:
+      '*':
       - net.ipv4.tcp_syncookies:
           match_output: '1'
-          tag: CIS-3.2.8
+          tag: EBOSS-Ubuntu-7.1.10
     description: Ensure TCP SYN Cookies is enabled
-
-pkg:
+  ipv6_adverts:
+    data:
+      '*':
+      - net.ipv6.conf.all.accept_ra:
+          match_output: '0'
+          tag: EBOSS-Ubuntu-7.2.1
+      - net.ipv6.conf.default.accept_ra:
+          match_output: '0'
+          tag: EBOSS-Ubuntu-7.2.1
+    description: Ensure IPv6 router advertisements are not accepted
+  ipv6_redir:
+    data:
+      '*':
+      - net.ipv6.conf.all.accept_redirects:
+          match_output: '0'
+          tag: EBOSS-Ubuntu-7.2.2
+      - net.ipv6.conf.default.accept_redirects:
+          match_output: '0'
+          tag: EBOSS-Ubuntu-7.2.2
+    description: Ensure IPv6 redirects are not accepted
+service:
   blacklist:
+    autofs:
+      data:
+        '*':
+        - autofs: EBOSS-Ubunto-2.9
+      description: Ensure automout is disabled
+    apport:
+      data:
+        '*':
+        - apport: EBOSS-Ubuntu-4.1.3
+      description: Restrict Core Dumps - Ensure apport service is disabled
+    whoopsie:
+      data:
+        '*':
+        - whoopsie: EBOSS-Ubuntu-4.1.3
+      description: Restrict Core Dumps - Ensure whoopsie service is disabled
     xinetd:
       data:
-        Ubuntu-16.04:
-          - xinetd: CIS-2.1.10
-      description: Ensure xinetd is not install
-    openbsd-inetd:
+        '*':
+          - xinetd: EBOSS-Ubuntu-5.1.6
+      description: Ensure xinetd is not enabled
+    dhcp-server:
       data:
-        Ubuntu-16.04:
-        - openbsd-inetd: CIS-2.1.11
-      description: Ensure openbsd-inetd is not installed
-    prelink:
+        '*':
+          - isc-dhcp-server: EBOSS-Ubuntu-6.1.5
+          - isc-dhcp-server6: EBOSS-Ubuntu-6.1.5
+      description: Ensure DHCP Server is not enabled
+    slapd:
       data:
-        Ubuntu-16.04:
-        - prelink: CIS-1.5.4
-      description: Ensure prelink is disabled
-    nis:
+        '*':
+        - slapd: EBOSS-Ubuntu-6.1.6
+      description: Ensure LDAP server is not enabled
+    nfs-service:
       data:
-        Ubuntu-16.04:
-        - nis: CIS-2.3.1
-      description: Ensure NIS Client is not installed
-    talkd:
+        '*':
+        - nfs-kernel-server: EBOSS-Ubuntu-6.1.7
+      description: Ensure NFS and RPC are not enabled
+    rpc-bind-service:
       data:
-        Ubuntu-16.04:
-        - talkd: CIS-2.1.7
-      description: Ensure Talk Server is not installed
-    telnet-server:
+        '*':
+        - rpcbind: EBOSS-Ubuntu-6.1.7
+      description: Ensure NFS and RPC are not enabled
+    bind9:
       data:
-        Ubuntu-16.04:
-        - telnetd: CIS-2.1.8
-      description: Ensure Telnet Server is not installed
-    telnet-client:
+        '*':
+        - bind9: EBOSS-Ubuntu-6.1.8
+      description: Ensure DNS Server is not enabled
+    http-server-service:
       data:
-        Ubuntu-16.04:
-        - telnet: CIS-2.3.4
-      description: Ensure Telnet Client is not installed
-    ldap-client:
+        '*':
+        - apache2: EBOSS-Ubuntu-6.1.10
+      description: Ensure HTTP server is not enabled
+    imap-pop3-server-service:
       data:
-        Ubuntu-16.04:
-        - ldap-utils: CIS-2.3.5
-      description: Ensure LDAP Client is not installed
-    talk:
-      data:
-        Ubuntu-16.04:
-        - talk: CIS-2.3.3
-      description: Ensure Talk Client is not installed
-    xserver:
-      data:
-        Ubuntu-16.04:
-        - xserver-xorg-core\*: CIS-2.2.2
-      description: Ensure X Window System is not installed
-    biosdevname:
-      data:
-        Ubuntu-16.04:
-        - biosdevname: CIS-6.17
-      description: Ensure biosdevname is not enabled
-    rsh-server:
-      data:
-        Ubuntu-16.04:
-        - rsh-server: CIS-2.1.6
-      description: Ensure rsh server is not enabled
-    rsh-client:
-      data:
-        Ubuntu-16.04:
-        - rsh-client: CIS-2.3.2
-        - rsh-redone-client: CIS-2.3.2
-      description: Ensure rsh client is not installed
-  whitelist:
-    ntp:
-      data:
-        Ubuntu-16.04:
-        - ntp: CIS-2.2.1.2
-      description: Configure Network Time Protocol (NTP)
-    aide:
-      data:
-        Ubuntu-16.04:
-        - aide: CIS-1.3.1
-      description: Ensure AIDE is installed
-    tcpd:
-      data:
-        Ubuntu-16.04:
-        - tcpd: CIS-3.4.1
-      description: Ensure TCP Wrappers is installed
-    rsyslog:
-      data:
-        Ubuntu-16.04:
-        - rsyslog: CIS-4.2.3
-      description: Ensure rsyslog is installed
-    iptables:
-      data:
-        Ubuntu-16.04:
-        - iptables: CIS-3.6.1
-      description: Ensure iptables is installed
+        '*':
+        - dovecot: EBOSS-Ubuntu-6.1.12
+      description: Ensure IMAP and POP3 server is not enabled      
+command:
+  sticky_bit_on_world_writable_directories:
+    data:
+      '*':
+        tag: EBOSS-Ubuntu-2.7
+        commands:
+          - 'find / -xdev -type d \( -perm -0002 -a ! -perm -1000 \) -print 2>/dev/null':
+              fail_if_matched: true
+    description: Ensure sticky bit is set on all world-writable directories
+  ufw_active:
+    data:
+      '*':
+        tag: EBOSS-Ubuntu-7.6
+        commands:
+          - 'ufw status':
+              match_output: Status active
+    description: Ensure Firewall is active if no network or physical firewalls exists
 stat:
   grub_cfg_perms:
     data:
-      Ubuntu-16.04:
+      '*':
       - /boot/grub/grub.cfg:
           gid: 0
           group: root
@@ -915,119 +590,261 @@ stat:
           user: root
           mode: 600
           allow_more_strict: true
-          tag: CIS-1.4.1
-    description: Ensure permissions on bootloader config are configured
-  hosts_allow_perms:
+          tag: EBOSS-Ubuntu-3.1
+          description: Ensure permissions on bootloader config /boot/grub/grub.cfg is owned by root:root and permission is set to 600
+pkg:
+  whitelist:
+    apparmor:
+      data:
+        '*':
+          - 'apparmor': EBOSS-Ubuntu-4.5
+          - 'apparmor-utils': EBOSS-Ubuntu-4.5
+          - 'apparmor-profiles': EBOSS-Ubuntu-4.5
+      description: Activate AppArmor
+    rsyslog:
+      data:
+        '*':
+        - rsyslog: EBOSS-Ubuntu-8.3.1
+      description: Ensure rsyslog is installed
+    ntp:
+      data:
+        '*':
+        - ntp: EBOSS-Ubuntu-6.2
+      description: Configure Network Time Protocol (NTP)
+    tcp_wrappers:
+      data:
+        '*':
+        - tcp_wrappers: EBOSS-Ubuntu-7.3.1
+      description: Ensure TCP Wrappers is installed
+  blacklist:
+    prelink:
+      data:
+        '*':
+        - prelink: EBOSS-Ubuntu-4.4
+      description: Ensure prelink is disabled
+    nis:
+      data:
+        '*':
+        - nis: EBOSS-Ubuntu-5.1.1
+      description: Ensure NIS Client is not installed
+    rsh-server:
+      data:
+        '*':
+        - rsh-server: EBOSS-Ubuntu-5.1.2
+      description: Ensure rsh server is not installed
+    rsh-client:
+      data:
+        '*':
+        - rsh-client: EBOSS-Ubuntu-5.1.2
+      description: Ensure rsh-client package is not installed
+    rsh-redone-client:
+      data:
+        '*':
+        - rsh-redone-client: EBOSS-Ubuntu-5.1.2
+      description: Ensure rsh-redone-client package is not installed
+    talkd:
+      data:
+        '*':
+        - talkd: EBOSS-Ubuntu-5.1.3
+      description: Ensure Talk Server is not installed
+    talk:
+      data:
+        '*':
+        - talk: EBOSS-Ubuntu-5.1.3
+      description: Ensure Talk client is not installed
+    telnet-server:
+      data:
+        '*':
+        - telnetd: EBOSS-Ubuntu-5.1.4
+      description: Ensure Telnet Server is not installed
+    telnet-client:
+      data:
+        '*':
+        - telnet: EBOSS-Ubuntu-5.1.4
+      description: Ensure Telnet Client is not installed
+    xserver:
+      data:
+        '*':
+        - xserver-xorg-core\*: EBOSS-Ubuntu-6.1.1
+      description: Ensure the X Window System is not installed
+    biosdevname:
+      data:
+        '*':
+        - biosdevname: EBOSS-Ubuntu-6.1.3
+      description: Ensure biosdevname is not enabled
+systemctl:
+  whitelist:
+    rsyslog_enabled:
+      data:
+        '*':
+        - rsyslog:
+           tag: EBOSS-Ubuntu-8.3.1
+      description: Ensure rsyslog Service is enabled
+    cron_deamon_enabled:
+      data:
+        '*':
+        - cron:
+           tag: EBOSS-Ubuntu-9.1
+      description: enable Cron      
+  blacklist:
+    nis-server-disabled:
+      data:
+        '*':
+        - nis:
+            tag: EBOSS-Ubuntu-5.1.1
+      description: Ensure NIS Server is not enabled
+    rsh-socket-disabled:
+      data:
+        '*':
+        - rsh.socket:
+            tag: EBOSS-Ubuntu-5.1.2
+      description: Ensure rsh Server is not enabled
+    rlogin-socket-disabled:
+      data:
+        '*':
+        - rlogin.socket:
+            tag: EBOSS-Ubuntu-5.1.2
+      description: Ensure rsh Server is not enabled
+    rexec-socket-disabled:
+      data:
+        '*':
+        - rexec.socket:
+            tag: EBOSS-Ubuntu-5.1.2
+      description: Ensure rsh Server is not enabled
+    avahi-daemon-disabled:
+      data:
+        '*':
+        - avahi-daemon:
+            tag: EBOSS-Ubuntu-6.1.2
+      description: Ensure Avahi Server is not enabled
+    cups-disabled:
+      data:
+        '*':
+        - cups:
+            tag: EBOSS-Ubuntu-6.1.4
+      description: Ensure CUPS is not enabled
+    dhcpd-disabled:
+      data:
+        '*':
+        - isc-dhcp-server:
+            tag: EBOSS-Ubuntu-6.1.5
+      description: Ensure DHCP Server is not enabled
+stat:
+  hosts_allow:
     data:
-      Ubuntu-16.04:
+      '*':
       - /etc/hosts.allow:
           gid: 0
           group: root
           mode: 644
-          allow_more_strict: true
-          tag: CIS-3.4.4
+          tag: EBOSS-Ubuntu-7.3.2
           uid: 0
           user: root
-    description: Ensure permissions on /etc/hosts.allow are configured
-  hosts_deny_perms:
+    description: Ensure permissions on /etc/hosts.allow are configured (permission set to 644)
+  hosts_deny:
     data:
-      Ubuntu-16.04:
+      '*':
       - /etc/hosts.deny:
           gid: 0
           group: root
           mode: 644
-          allow_more_strict: true
-          tag: CIS-3.4.5
+          tag: EBOSS-Ubuntu-7.3.3
           uid: 0
           user: root
-    description: Ensure permissions on /etc/hosts.deny are configured
+    description: Ensure permissions on /etc/hosts.deny are configured (permission set to 644)
+stat:
   crontab_own_perms:
     data:
-      Ubuntu-16.04:
+      '*':
       - /etc/crontab:
           gid: 0
           group: root
           uid: 0
           user: root
-          mode: 600
-          allow_more_strict: true
-          tag: CIS-5.1.2
-    description:  Ensure permissions on /etc/crontab are configured
+          mode: 400
+          tag: EBOSS-Ubuntu-9.1.2
+    description:  restrict permissions on /etc/crontab     
   cron_hourly_own_perms:
     data:
-      Ubuntu-16.04:
+      '*':
       - /etc/cron.hourly:
           gid: 0
           group: root
           uid: 0
           user: root
-          mode: 600
-          allow_more_strict: true
-          tag: CIS-5.1.3
-    description:  Ensure permissions on /etc/cron.hourly are configured
+          mode: 400
+          tag: EBOSS-Ubuntu-9.1.3
+    description:  restrict permissions on /etc/cron.hourly 
   cron_daily_own_perms:
     data:
-      Ubuntu-16.04:
+      '*':
       - /etc/cron.daily:
           gid: 0
           group: root
           uid: 0
           user: root
-          mode: 600
-          allow_more_strict: true
-          tag: CIS-5.1.4
-    description:  Ensure permissions on /etc/cron.daily are configured
+          mode: 400
+          tag: EBOSS-Ubuntu-9.1.4
+    description:  restrict permissions on /etc/cron.daily 
   cron_weekly_own_perms:
     data:
-      Ubuntu-16.04:
+      '*':
       - /etc/cron.weekly:
           gid: 0
           group: root
           uid: 0
           user: root
-          mode: 600
-          allow_more_strict: true
-          tag: CIS-5.1.5
-    description:  Ensure permissions on /etc/cron.weekly are configured
+          mode: 400
+          tag: EBOSS-Ubuntu-9.1.5
+    description:  restrict permissions on /etc/cron.weekly     
   cron_monthly_own_perms:
     data:
-      Ubuntu-16.04:
+      '*':
       - /etc/cron.monthly:
           gid: 0
           group: root
           uid: 0
           user: root
-          mode: 600
-          allow_more_strict: true
-          tag: CIS-5.1.6
-    description:  Ensure permissions on /etc/cron.monthly are configured
+          mode: 400
+          tag: EBOSS-Ubuntu-9.1.6
+    description:  restrict permissions on /etc/cron.monthly 
   cron_d_own_perms:
     data:
-      Ubuntu-16.04:
+      '*':
       - /etc/cron.d:
           gid: 0
           group: root
           uid: 0
           user: root
-          mode: 700
-          allow_more_strict: true
-          tag: CIS-5.1.7
-    description:  Ensure permissions on /etc/cron.d are configured
+          mode: 400
+          tag: EBOSS-Ubuntu-9.1.7
+    description:  restrict permissions on /etc/cron.d  
+  crontab_own_perms:
+    data:
+      '*':
+      - /etc/ssh/sshd_config
+          gid: 0
+          group: root
+          uid: 0
+          user: root
+          mode: 600
+          tag: EBOSS-Ubuntu-9.3.3
+    description:  set ssh permissions on /etc/ssh/sshd_config file    
   at_cron_allow:
     data:
-      Ubuntu-16.04:
+      '*':
       - /etc/cron.deny:
           gid: null
           group: null
           mode: null
-          tag: CIS-5.1.8
+          tag: EBOSS-Ubuntu-9.1.8
           uid: null
           user: null
       - /etc/at.deny:
           gid: null
           group: null
           mode: null
-          tag: CIS-5.1.8
+          tag: EBOSS-Ubuntu-9.1.8
           uid: null
           user: null
       - /etc/cron.allow:
@@ -1035,7 +852,7 @@ stat:
           group: root
           mode: 600
           allow_more_strict: true
-          tag: CIS-5.1.8
+          tag: EBOSS-Ubuntu-9.1.8
           uid: 0
           user: root
       - /etc/at.allow:
@@ -1043,56 +860,32 @@ stat:
           group: root
           mode: 600
           allow_more_strict: true
-          tag: CIS-5.1.8
+          tag: EBOSS-Ubuntu-9.1.8
           uid: 0
           user: root
-    description: Ensure at/cron is restricted to authorized users
-  sshd_config:
-    data:
-      Ubuntu-16.04:
-      - /etc/ssh/sshd_config:
-          uid: 0
-          gid: 0
-          user: root
-          group: root
-          mode: 600
-          allow_more_strict: true
-          tag: CIS-5.2.1
-    description: Ensure permissions on /etc/ssh/sshd_config are configured
-  banner_files_issue:
-    data:
-      Ubuntu-16.04:
-      - /etc/issue:
-          uid: 0
-          gid: 0
-          user: root
-          group: root
-          mode: 644
-          allow_more_strict: true
-          tag: CIS-1.7.1.5
-    description: Ensure permissions on /etc/issue are configured
+    description: restrict at/cron to authorized users 
   passwd_perms:
     data:
-      Ubuntu-16.04:
+      '*':
       - /etc/passwd:
           uid: 0
           gid: 0
           user: root
           group: root
           mode: 644
-          tag: CIS-6.1.2
-    description: Ensure permissions on /etc/passwd are configured
+          tag: EBOSS-Ubuntu-12.1
+    description: set permissions on /etc/passwd 
   shadow_perms:
     data:
-      Ubuntu-16.04:
+      '*':
       - /etc/shadow:
           uid: 0
           gid: 42
           user: root
           group: shadow
-          mode: 640
-          tag: CIS-6.1.3
-    description: Ensure permissions on /etc/shadow are configured
+          mode: 400
+          tag: EBOSS-Ubuntu-12.2
+    description: set permissions on /etc/shadow 
   group_perms:
     data:
       Ubuntu-16.04:
@@ -1102,329 +895,358 @@ stat:
           user: root
           group: root
           mode: 644
-          tag: CIS-6.1.4
-    description: Ensure permissions on /etc/group are configured
-  gshadow_owner_group:
-    data:
-      Ubuntu-16.04:
-      - /etc/gshadow:
-          uid: 0
-          gid: 42
-          user: root
-          group: shadow
-          tag: CIS-6.1.5
-    description: Ensure permissions on /etc/gshadow are configured
-  passwd-_own_perm:
-    data:
-      Ubuntu-16.04:
-      - /etc/passwd-:
-          gid: 0
-          group: root
-          mode: 600
-          tag: CIS-6.1.6
-          uid: 0
-          user: root
-    description: Ensure permissions on /etc/passwd- are configured
-  shadow-_own_perm:
-    data:
-      Ubuntu-16.04:
-      - /etc/shadow-:
-          gid: 0
-          group: root
-          mode: 600
-          tag: CIS-6.1.7
-          uid: 0
-          user: root
-    description: 'Ensure permissions on /etc/shadow- are configured'
-  group-_own_perm:
-    data:
-      Ubuntu-16.04:
-      - /etc/group-:
-          gid: 0
-          group: root
-          mode: 600
-          tag: CIS-6.1.8
-          uid: 0
-          user: root
-    description: 'Ensure permissions on /etc/group- are configured'
-  gshadow-_own_perm:
-    data:
-      Ubuntu-16.04:
-      - /etc/gshadow-:
-          gid: 0
-          group: root
-          mode: 600
-          tag: CIS-6.1.9
-          uid: 0
-          user: root
-    description: 'Ensure permissions on /etc/gshadow- are configured'
+          tag: EBOSS-Ubuntu-12.3
+    description: set permissions on /etc/group    
+grep:
+  whitelist:
+    pam_password_creation_req_parameters:
+      data:
+        '*':
+        - /etc/pam.d/common-password:
+            pattern: pam_cracklib.so
+            match_output: retry=3   
+            tag: EBOSS-Ubuntu-9.2.1
+        - /etc/security/pwquality.conf:
+            pattern: minlen
+            match_output: '14'
+            tag: EBOSS-Ubuntu-9.2.1
+        - /etc/security/pwquality.conf:
+            pattern: dcredit
+            match_output: '-1'
+            tag: EBOSS-Ubuntu-9.2.1
+        - /etc/security/pwquality.conf:
+            pattern: ucredit
+            match_output: '-1'
+            tag: EBOSS-Ubuntu-9.2.1
+        - /etc/security/pwquality.conf:
+            pattern: ocredit
+            match_output: '-1'
+            tag: EBOSS-Ubuntu-9.2.1
+        - /etc/security/pwquality.conf:
+            pattern: lcredit
+            match_output: '-1'
+            tag: EBOSS-Ubuntu-9.2.1
+      description: set password creation requirement parameters
+    lockout_account:
+      data:
+        '*':
+        - /etc/pam.d/common-auth:
+            pattern: '"^auth\s+required\s+pam_tally2\.so.*"'
+            match_output: deny=5
+            grep_args:
+              - '-E'
+            tag: EBOSS-Ubuntu-9.2.2
+      description: set lockout for failed password attempts 
+    pam_password_reuse:
+      data:
+        '*':
+        - /etc/pam.d/common-password:
+            pattern: remember
+            match_output: 'remember=5'
+            tag: EBOSS-Ubuntu-9.2.3
+      description: limit password reuse 
+    ssh_version_2:
+      data:
+        '*':
+        - /etc/ssh/sshd_config:
+            pattern: ^Protocol
+            match_output: Protocol\s+2
+            match_output_regex: True
+            tag: EBOSS-Ubuntu-9.3.1
+      description: set SSH Protocol to 2
+    ssh_log_level:
+      data:
+        '*':
+        - /etc/ssh/sshd_config:
+            pattern: ^LogLevel
+            match_output: LogLevel\s+INFO
+            match_output_regex: True
+            tag: EBOSS-Ubuntu-9.3.2
+      description: set SSH LogLevel to INFO
+    ssh_no_rsa_rhosts:
+      data:
+        '*':
+        - /etc/ssh/sshd_config:
+            pattern: ^RhostsRSAAuthentication
+            match_output: RhostsRSAAuthentication\s+no
+            match_output_regex: True
+            tag:EBOSS-Ubuntu-9.3.5
+      description: set RhostsRSAAuthentication to no             
+    ssh_ignore_rhosts:
+      data:
+        '*':
+        - /etc/ssh/sshd_config:
+            pattern: ^IgnoreRhosts
+            match_output: IgnoreRhosts\s+yes
+            match_output_regex: True
+            tag: EBOSS-Ubuntu-9.3.4
+      description: set SSH IgnoreRhosts to yes
+    ssh_hostbased_auth:
+      data:
+        '*':
+        - /etc/ssh/sshd_config:
+            pattern: ^HostbasedAuthentication
+            match_output: HostbasedAuthentication\s+no
+            match_output_regex: True
+            tag: EBOSS-Ubuntu-9.3.6
+      description: set SSH HostbasedAuthentication to no
+    ssh_permit_root:
+      data:
+        '*':
+        - /etc/ssh/sshd_config:
+            pattern: ^PermitRootLogin
+            match_output: PermitRootLogin\s+no
+            match_output_regex: True
+            tag: EBOSS-Ubuntu-9.3.7
+      description: set SSH root login to no
+    ssh_permit_empty_pw:
+      data:
+        '*':
+        - /etc/ssh/sshd_config:
+            pattern: ^PermitEmptyPasswords
+            match_output: PermitEmptyPasswords\s+no
+            match_output_regex: True
+            tag: EBOSS-Ubuntu-9.3.8
+      description: set SSH PermitEmptyPasswords to no
+    ssh_permit_user_env:
+      data:
+        '*':
+        - /etc/ssh/sshd_config:
+            pattern: ^PermitUserEnvironment
+            match_output: PermitUserEnvironment\s+no
+            match_output_regex: True
+            tag: EBOSS-Ubuntu-9.3.9
+      description: set SSH PermitUserEnvironment to no
+    sshd_banner:
+      data:
+        '*':
+        - /etc/ssh/sshd_config:
+            match_output: "/etc/issue.net"
+            pattern: ^Banner
+            tag: EBOSS-Ubuntu-9.3.10
+      description: set SSH warning banner  
+    ssh_auth_retries:
+      data:
+        '*':
+        - /etc/ssh/sshd_config:
+            pattern: ^MaxAuthTries
+            match_output_regex: True
+            match_output: "^MaxAuthTries +[1-4]$"
+            tag: EBOSS-Ubuntu-9.3.11
+      description: set SSH MaxAuthTries to 4 or less
+    ssh_disable_xforward:
+      data:
+        '*':
+        - /etc/ssh/sshd_config:
+            pattern: ^X11Forwarding
+            match_output: X11Forwarding\s+no
+            match_output_regex: True
+            tag: EBOSS-Ubuntu-9.3.12
+      description: set SSH X11 forwarding to no
+    sshd_login_timeout:
+      data:
+        '*':
+        - /etc/ssh/sshd_config:
+            pattern: ^ClientAliveInterval
+            match_output: ^ClientAliveInterval +([1-2]{0,1}\d{1,2}|300)$
+            match_output_regex: True
+            tag: EBOSS-Ubuntu-CIS-5.2.12
+        - /etc/ssh/sshd_config:
+            pattern: ClientAliveCountMax
+            match_output: "^ClientAliveCountMax +[0-3]$"
+            match_output_regex: True
+            tag: EBOSS-Ubuntu-9.3.14
+      description: set user login timeouts
+    ssh_no_pwd_auth:
+      data:
+        '*':
+        - /etc/ssh/sshd_config:
+            pattern: ^PasswordAuthentication
+            match_output: PasswordAuthentication\s+no
+            match_output_regex: True
+            tag:EBOSS-Ubuntu-9.3.5
+      description: set PasswordAuthentication to no for restricted data
+    default_umask:
+      data:
+        '*':
+        - /etc/login.defs:
+            pattern: umask
+            match_pattern: '027'
+            tag: EBOSS-Ubuntu-10.2
+      description: Ensure default user umask is 027 
+    password_max_days:
+      data:
+        '*':
+        - /etc/login.defs:
+            pattern: PASS_MAX_DAYS
+            match_output: '90'
+            tag: EBOSS-Ubuntu-10.3.1
+      description: set password expiration to 90 days or less
+    password_min_days:
+      data:
+        '*':
+        - /etc/login.defs:
+            pattern: PASS_MIN_DAYS
+            match_output: '7'
+            tag: EBOSS-Ubuntu-10.3.1
+      description: set minimum days between password changes to 7 or more
+    password_warn_days:
+      data:
+        '*':
+        - /etc/login.defs:
+            pattern: PASS_WARN_AGE
+            match_output: '7'
+            tag: EBOSS-Ubuntu-10.3.1
+      description: sets password expiration warning days to 7 or more 
+    lock_inactive:
+      data:
+        '*':
+        - /etc/default/useradd:
+            pattern: INACTIVE=60
+            tag: EBOSS-Ubuntu-10.3.3
+      description: lock inactive accounts after 60 days      
+    banner_os_motd:
+      data:
+        '*':
+        - /etc/motd:
+            pattern: '\v'
+            tag: EBOSS-Ubuntu-11.1
+        - /etc/motd:
+            pattern: '\r'
+            tag: EBOSS-Ubuntu-11.1
+        - /etc/motd:
+            pattern: '\m'
+            tag: EBOSS-Ubuntu-11.1
+        - /etc/motd:
+            pattern: '\s'
+            tag: EBOSS-Ubuntu-11.1
+        - /etc/issue.net:
+            pattern: '\v'
+            tag: EBOSS-Ubuntu-11.1
+        - /etc/issue.net:
+            pattern: '\r'
+            tag: EBOSS-Ubuntu-11.1
+        - /etc/issue.net:
+            pattern: '\m'
+            tag: EBOSS-Ubuntu-11.1
+        - /etc/issue.net:
+            pattern: '\s'
+            tag: EBOSS-Ubuntu-11.1            
+      description: set warning banner for standard login services    
+  blacklist:
+    legacy_entries_passwd:
+      data:
+        '*':
+        - /etc/passwd:
+            pattern: '^+'
+            tag: EBOSS-Ubuntu-13.1.2
+      description: Ensure No Legacy "+" Entries Exist in /etc/passwd File
+    legacy_entries_shadow:
+      data:
+        '*':
+        - /etc/shadow:
+            pattern: '^+'
+            tag: EBOSS-Ubuntu-13.1.3
+      description: Ensure No Legacy "+" Entries Exist in /etc/shadow File
+    legacy_entries_group:
+      data:
+        '*':
+        - /etc/group:
+            pattern: '^+'
+            tag: EBOSS-Ubuntu-13.1.4
+      description: Ensure No Legacy "+" Entries Exist in /etc/group File      
 misc:
-#  check_log_files_permission:
-#    data:
-#      Ubuntu-16.04:
-#       tag: CIS-4.2.4
-#       function: check_directory_files_permission
-#       args:
-#        - /var/log
-#        - 740
-#    description: Ensure permissions on all logfiles are configured
-  system_account_non_login:
+  check_log_files_permission:
     data:
-      Ubuntu-16.04:
-        tag: CIS-5.4.2
-        function: system_account_non_login
-    description: Ensure system accounts are non-login
-    control: Code change required for filtering the users by their login shell
+      '*':
+       tag: EBOSS-Ubuntu-8.1
+       function: check_directory_files_permission
+       args:
+        - /var/log
+        - 740
+    description: Ensure permissions on all logfiles are configured
   default_group_for_root_account:
     data:
-      Ubuntu-16.04:
-        tag: CIS-5.4.3
+      '*':
+        tag: EBOSS-Ubuntu-10.3.2
         function: default_group_for_root
-    description: 'Ensure default group for the root account is GID 0'
-  sshd_approved_macs:
-    data:
-      Ubuntu-16.04:
-       tag: CIS-5.2.11
-       function: check_list_values
-       args:
-         - /etc/ssh/sshd_config
-         - '^MACs'
-         - '^MACs(.*)$'
-         - null
-         - hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com,curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256
-         - null
-         - ','
-    description: Ensure only approved MAC algorithms are used
-  ensure_password_fields_non_empty:
-    data:
-      Ubuntu-16.04:
-        tag: CIS-6.2.1
-        function: check_password_fields_not_empty
-    description: Ensure password fields are not empty
-  root_is_only_uid_0_account:
-    data:
-      Ubuntu-16.04:
-        tag: CIS-6.2.5
-        function: root_is_only_uid_0_account
-    description: 'Ensure root is the only UID 0 account'
+    description: set GID 0 for root account
   check_path_integrity:
     data:
-      Ubuntu-16.04:
-        tag: CIS-6.2.6
+      '*':
+        tag: EBOSS-Ubuntu-13.2
         function: check_path_integrity
-    description: Ensure root PATH Integrity
-  valid_home_directory:
-    data:
-      Ubuntu-16.04:
-        tag: CIS-6.2.7
-        function: check_all_users_home_directory
-        args:
-        - 1000
-    description: 'Ensure all users home directories exist'
+    description: Ensure root PATH Integrity  
   home_directory_permission:
     data:
-      Ubuntu-16.04:
-        tag: CIS-6.2.8
+      '*':
+        tag: EBOSS-Ubuntu-13.3
         function: check_users_home_directory_permissions
-    description: 'Ensure users home directories permissions are 750 or more restrictive'
-  user_own_home_directory:
-    data:
-      Ubuntu-16.04:
-        tag: CIS-6.2.9
-        function: check_users_own_their_home
-        args:
-        - 1000
-    description: Ensure users own their home directories
-#  check_users_dot_files_not_writable:
-#    data:
-#      Ubuntu-16.04:
-#        tag: CIS-6.2.10
-#        function: check_users_dot_files
-#    description: Ensure users dot files are not group or world writable
-  check_users_not_forward_files:
-    data:
-      Ubuntu-16.04:
-        tag: CIS-6.2.11
-        function: check_users_forward_files
-    description: 'Ensure no users have .forward files'
-  check_no_users_netrc_files:
-    data:
-      Ubuntu-16.04:
-        tag: CIS-6.2.12
-        function: check_users_netrc_files
-    description: Ensure no users have .netrc files
-  check_netrc_files_not_world_writable:
-    data:
-      Ubuntu-16.04:
-        tag: CIS-6.2.13
-        function: check_netrc_files_accessibility
-    description: 'Ensure users .netrc Files are not group or world accessible'
+    description: set permissions on users home directories to 750 or more restrictive
   check_no_users_have_rhosts_files:
     data:
-      Ubuntu-16.04:
-        tag: CIS-6.2.14
+      '*':
+        tag: EBOSS-Ubuntu-13.5.1
         function: check_users_rhosts_files
     description: Ensure no users have .rhosts files
   check_groups_validity_in_systemfiles:
     data:
-      Ubuntu-16.04:
-        tag: CIS-6.2.15
+      '*':
+        tag: EBOSS-Ubuntu-13.5.2
         function: check_groups_validity
     description: Ensure all groups in /etc/passwd exist in /etc/group
-  no_duplicate_sid:
+  no_duplicate_uid:
     data:
-      Ubuntu-16.04:
-        tag: CIS-6.2.16
+      '*':
+        tag: EBOSS-Ubuntu-13.5.3
         function: check_duplicate_uids
     description: Ensure no duplicate UIDs exist
   no_duplicate_gid:
     data:
-      Ubuntu-16.04:
-        tag: CIS-6.2.17
+      '*':
+        tag: EBOSS-Ubuntu-13.5.4
         function: check_duplicate_gids
     description: Ensure no duplicate GIDs exist
   check_duplicate_unames_exist:
     data:
-      Ubuntu-16.04:
-        tag: CIS-6.2.18
+      '*':
+        tag: EBOSS-Ubuntu-13.5.5
         function: check_duplicate_unames
     description: Ensure no duplicate user names exist
   check_duplicate_gnames_exist:
     data:
-      Ubuntu-16.04:
-        tag: CIS-6.2.19
+      '*':
+        tag: EBOSS-Ubuntu-13.5.6
         function: check_duplicate_gnames
     description: Ensure no duplicate group names exist
-systemctl:
-  whitelist:
-    rsyslog_enabled:
-      data:
-        Ubuntu-16.04:
-        - rsyslog:
-           tag: CIS-4.2.1.1
-      description: Ensure rsyslog Service is enabled
-    cron_deamon_enabled:
-      data:
-        Ubuntu-16.04:
-        - cron:
-           tag: CIS-5.1.1
-      description: Ensure cron daemon is enabled
-  blacklist:
-    avahi-daemon-disabled:
-      data:
-        Ubuntu-16.04:
-        - avahi-daemon:
-            tag: CIS-2.2.3
-      description: Ensure Avahi Server is not enabled
-    cups-disabled:
-      data:
-        Ubuntu-16.04:
-        - cups:
-            tag: CIS-2.2.4
-      description: Ensure CUPS is not enabled
-    dhcpd-disabled:
-      data:
-        Ubuntu-16.04:
-        - isc-dhcp-server:
-            tag: CIS-2.2.5
-      description: Ensure DHCP Server is not enabled
-    ldap-server-disabled:
-      data:
-        Ubuntu-16.04:
-        - slapd:
-            tag: CIS-2.2.6
-      description: Ensure LDAP server is not enabled
-    nfs-disabled:
-      data:
-        Ubuntu-16.04:
-        - nfs-kernel-server:
-            tag:  CIS-2.2.7
-      description: Ensure NFS and RPC are not enabled
-#    rpc-disabled:
-#      data:
-#        Ubuntu-16.04:
-#        - rpcbind:
-#            tag: CIS-2.2.7
-#      description: Ensure NFS and RPC are not enabled(rpcbind-systemctl)
-    dns-server-disabled:
-      data:
-        Ubuntu-16.04:
-        - bind9:
-            tag: CIS-2.2.8
-      description: Ensure DNS Server is not enabled
-    ftp-server-disabled:
-      data:
-        Ubuntu-16.04:
-        - vsftpd:
-            tag: CIS-2.2.9
-        - proftpd:
-            tag: CIS-2.2.9
-        - pure-ftpd:
-            tag: CIS-2.2.9
-      description: Ensure FTP Server is not enabled
-    http-server-disabled:
-      data:
-        Ubuntu-16.04:
-        - apache2:
-            tag: CIS-2.2.10
-      description: Ensure HTTP server is not enabled
-    imap-pop3-server-disabled:
-      data:
-        Ubuntu-16.04:
-        - dovecot:
-            tag: CIS-2.2.11
-      description: Ensure IMAP and POP3 server is not enabled
-    samba-server-disabled:
-      data:
-        Ubuntu-16.04:
-        - samba:
-            tag: CIS-2.2.12
-      description: Ensure Samba is not enabled
-    http-proxy-server-disabled:
-      data:
-        Ubuntu-16.04:
-        - squid:
-            tag: CIS-2.2.13
-      description: Ensure HTTP Proxy Server is not enabled
-    snmp-server-disabled:
-      data:
-        Ubuntu-16.04:
-        - snmpd:
-            tag: CIS-2.2.14
-      description: Ensure SNMP Server is not enabled
-    nis-server-disabled:
-      data:
-        Ubuntu-16.04:
-        - nis:
-            tag: CIS-2.2.17
-      description: Ensure NIS Server is not enabled
-    rsh-socket-disabled:
-      data:
-        Ubuntu-16.04:
-        - rsh.socket:
-            tag: CIS-2.1.6
-      description: Ensure rsh Server is not enabled
-    rlogin-socket-disabled:
-      data:
-        Ubuntu-16.04:
-        - rlogin.socket:
-            tag: CIS-2.1.6
-      description: Ensure rsh Server is not enabled
-    rexec-socket-disabled:
-      data:
-        Ubuntu-16.04:
-        - rexec.socket:
-            tag: CIS-2.1.6
-      description: Ensure rsh Server is not enabled
-    telnet-server-disabled:
-      data:
-        Ubuntu-16.04:
-        - telnet.socket:
-            tag: CIS-2.1.8
-      description: Ensure telnet server is not enabled
-    rsync-service-disabled:
-      data:
-        Ubuntu-16.04:
-        - rsync:
-            tag: CIS-2.2.16
-      description: Ensure rsync service is not enabled
+  check_no_users_netrc_files:
+    data:
+      '*':
+        tag: EBOSS-Ubuntu-13.5.7
+        function: check_users_netrc_files
+    description: Ensure no users have .netrc files
+  check_users_not_forward_files:
+    data:
+      '*':
+        tag: EBOSS-Ubuntu-13.5.8
+        function: check_users_forward_files
+    description: Ensure no users have .forward files
+  system_account_non_login:
+    data:
+      '*':
+        tag: EBOSS-Ubuntu-10.3.1
+        function: system_account_non_login
+    description: Disable system accounts that can be used as interactive shell
+    control: Code change required for filtering the users by their login shell
+  root_is_only_uid_0_account:
+    data:
+      '*':
+        tag: EBOSS-Ubuntu-13.1.5
+        function: root_is_only_uid_0_account
+    description: Ensure root is the only UID 0 account
+  check_path_integrity:
+    data:
+      '*':
+        tag: EBOSS-Ubuntu-13.2
+        function: check_path_integrity
+    description: Ensure root PATH Integrity    
