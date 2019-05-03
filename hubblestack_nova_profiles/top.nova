@@ -27,7 +27,6 @@ nova:
     - cis.ubuntu-1404-level-1-scored-v1-0-0
   'G@osfinger:Ubuntu-16.04':
     - cis.ubuntu-1604-level-1-scored-v1-1-0
-    - test
   'G@osfinger:Ubuntu-18.04':
     - cis.ubuntu-1804-level-1-scored-v1-0-0
   'G@osfullname:Microsoft*Windows*Server*2008*':
@@ -47,7 +46,6 @@ nova:
   'G@osfinger:Amazon*Linux*2018*':
     - cis.amazon-level-1-scored-v2-1-0
   'G@kernel:Linux':
-    - test
     - security.meltdown_spectre
     - security.ssh_passwordauthentication
     - cis.distribution-independent-linux-level-1-all-v1-1-0
